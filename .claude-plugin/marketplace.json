@@ -1,0 +1,17 @@
+{
+  "name": "kc-ai-plugins",
+  "description": "Workflow plugins for Claude Code and Codex, each bundling a few related skills.",
+  "owner": {
+    "name": "Kerberos Claw",
+    "url": "https://github.com/KerberosClaw"
+  },
+  "plugins": [
+    {
+      "name": "doc-qa",
+      "source": "./plugins/doc-qa",
+      "description": "Document an existing project, QA it through the real UI with Playwright, and export the results as PDF.",
+      "category": "documentation",
+      "tags": ["documentation", "qa", "playwright", "pdf"]
+    }
+  ]
+}

@@ -1,0 +1,13 @@
+{
+  "name": "doc-qa",
+  "version": "0.1.0",
+  "description": "Document an existing project, QA it through the real UI with Playwright, and export the results as PDF. Skills: project-docs, qa, md2pdf.",
+  "author": {
+    "name": "Kerberos Claw",
+    "url": "https://github.com/KerberosClaw"
+  },
+  "homepage": "https://github.com/KerberosClaw/kc_ai_plugins/tree/main/plugins/doc-qa",
+  "repository": "https://github.com/KerberosClaw/kc_ai_plugins",
+  "license": "MIT",
+  "keywords": ["documentation", "user-manual", "qa", "playwright", "pdf"]
+}

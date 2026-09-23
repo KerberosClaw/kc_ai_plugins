@@ -1,0 +1,4 @@
+interface:
+  display_name: "Markdown to PDF"
+  short_description: "Convert one Markdown file into a publication-ready A4 PDF"
+  default_prompt: "Use $md2pdf to convert this Markdown file into an A4 PDF."
