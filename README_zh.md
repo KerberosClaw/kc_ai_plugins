@@ -1,10 +1,16 @@
-# KC AI Plugins
+# KC AI Plugins — 一包給兩種 agent，整套工作一次裝好
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
 
 [English](README.md)
 
 這個情境你一定遇過：同事跑來說「你之前講的那個 QA skill 借我用一下」，十分鐘後你們還在線上會議裡：「先把這個資料夾複製過去，不是那個，是另一個，好，現在打開你的 MCP 設定檔……」這個 repo 存在的目的，就是讓這通電話不要再發生。
+
+<p align="center">
+  <img src="image/kc_ai_plugins_hero.png" width="460" alt="暖橘色的 Claude agent 與冷青綠色的 Codex agent 一起打開同一個 plugin pack，裡面有 MCP、QA、DOCS 與 PDF 模組">
+</p>
+
+<p align="center"><em>同一包給 Claude Code 和 Codex 共用：MCP 加上完成整套工作所需的 skills。</em></p>
 
 這裡的每個 plugin 都是一個 **pack**：同一件工作要用到的幾個 skill，加上它們需要的 MCP，一個指令裝好。**Claude Code** 和 **Codex** 都能用。剛好 Codex 會直接讀 Claude 的 plugin 清單，所以整個 repo 只有一套檔案，沒有人需要維護兩份。（我們確認過，而且確認了兩次，都是在拋棄式的設定目錄裡測的，因為我們沒那麼勇敢。）
 

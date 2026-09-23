@@ -1,10 +1,16 @@
-# KC AI Plugins
+# KC AI Plugins — One Pack, Two Agents, the Whole Job
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
 
 [中文](README_zh.md)
 
 You know the drill. A colleague asks for "that QA skill you keep talking about", and ten minutes later you're both still on a call going "okay, now copy this folder, no, the other folder, now open your MCP config..." This repo exists so that call never happens again.
+
+<p align="center">
+  <img src="image/kc_ai_plugins_hero.png" width="460" alt="An orange Claude-inspired agent and a teal Codex-inspired agent open the same plugin pack, revealing MCP, QA, Docs, and PDF modules">
+</p>
+
+<p align="center"><em>One plugin pack, shared by Claude Code and Codex: MCP plus the skills for the whole job.</em></p>
 
 Each plugin here is a **pack**: the skills for one job, plus the MCP servers they need, installed in one step. It works on both **Claude Code** and **Codex**. Codex happens to read Claude's plugin manifests directly, so there is exactly one set of files and nobody has to keep two of them in sync. (We checked. Twice. On a scratch config, because we are not brave.)
 
