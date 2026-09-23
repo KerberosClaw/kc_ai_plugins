@@ -1,6 +1,6 @@
 {
   "name": "doc-qa",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Document an existing project, QA it through the real UI with Playwright, and export the results as PDF. Skills: project-docs, qa, md2pdf.",
   "author": {
     "name": "Kerberos Claw",
