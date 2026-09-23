@@ -1,7 +1,7 @@
 ---
 name: md2pdf
 description: "Use when the user wants to convert one Markdown file into a publication-ready A4 PDF, especially when the source may contain Mermaid diagrams, ASCII diagrams, CJK text, tables, or pandoc/weasyprint edge cases. Works by copying the source to a _pdf.md working file, converting diagrams, escaping PDF-breaking syntax, balancing table column widths, rendering with pandoc + weasyprint, then self-checking pages by ink coverage. Cleans up intermediates only after the user calls the version final. NOT for batch conversion, slide decks, or editing the original Markdown in place."
-version: 1.4.0
+version: 1.4.1
 status: stable
 triggers:
   - "/md2pdf"

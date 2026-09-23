@@ -253,13 +253,22 @@ PY
 TOC_ARGS=()
 [ "$WANT_TOC" = "1" ] && TOC_ARGS=(--toc --toc-depth="$TOC_DEPTH")
 
+# pandoc 3.8 renamed --no-highlight to --syntax-highlighting=none, and older
+# releases reject the new spelling outright (Ubuntu 26.04 still ships 3.7).
+# Ask the installed pandoc which one it understands instead of pinning a version.
+if pandoc --help 2>/dev/null | grep -q -- '--syntax-highlighting'; then
+  HL_ARG="--syntax-highlighting=none"
+else
+  HL_ARG="--no-highlight"
+fi
+
 pandoc "$WORK/doc.md" \
   ${TOC_ARGS[@]+"${TOC_ARGS[@]}"} \
   --metadata title="$(cat "$WORK/doc.md.title")" \
   --pdf-engine=weasyprint \
   --css="$WORK/style.css" \
   --resource-path=".:$PWD:$WORK" \
-  --syntax-highlighting=none \
+  "$HL_ARG" \
   -o "$OUT"
 
 case "$OUT" in /*) echo "wrote: $OUT" ;; *) echo "wrote: $PWD/$OUT" ;; esac
