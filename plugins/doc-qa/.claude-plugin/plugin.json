@@ -1,6 +1,6 @@
 {
   "name": "doc-qa",
-  "version": "0.2.1",
+  "version": "0.3.0",
   "description": "Document a project, QA Web UI with Playwright or desktop UI with available Codex computer-use, and export results as PDF. Skills: project-docs, qa, md2pdf.",
   "author": {
     "name": "Kerberos Claw",
