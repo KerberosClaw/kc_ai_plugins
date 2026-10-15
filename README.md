@@ -36,10 +36,16 @@ kc_ai_skills keeps doing what it was always good at: a big shelf of individual s
 ### doc-qa
 
 - **project-docs**: reads an existing codebase and writes the documents the next person will wish existed. Maintainers get technical docs (Mermaid diagrams, interfaces, operations). End users and administrators get step-by-step manuals with real screenshots, because nobody has ever found a button from an architecture diagram.
-- **qa**: for that special moment when every unit test and API test is green, and the first real human to touch the UI gets stuck anyway. It lines up the requirement documents against the frontend and backend code to find the rules nobody wrote down, turns them into traceable test cases, runs them with Playwright, and writes a report that only claims what the evidence actually supports. No "zero defects" from a test run that never ran.
+- **qa**: for that special moment when every unit test and API test is green, and the first real human to touch the UI gets stuck anyway. It compares approved requirements/specs with implementation, derives traceable test cases, and runs Web flows with Playwright MCP or desktop/cross-app flows with available Codex computer-use tools. Evidence remains driver-specific: no invented browser network or console signals for native apps. No "zero defects" from a test run that never ran.
 - **md2pdf**: turns one Markdown file into an A4 PDF. Mermaid, Chinese text, wide tables and page breaks are handled; we already stepped on every one of those rakes so you don't have to.
 
 They chain nicely: `qa` quietly collects screenshots for `project-docs` while it tests, and `md2pdf` turns either result into something you can attach to an email without apologising.
+
+`project-docs` is optional before QA: use it when technical docs or manuals need to be created, not to generate QA expectations from current behavior. QA derives cases from approved requirements/specs, and its success-path evidence can feed manuals afterwards. For maintaining existing docs after implementation/hotfixes, use [align](https://github.com/KerberosClaw/kc_ai_skills/tree/main/align).
+
+Manuals describe the version's usable behavior and known limitations; approved requirements/AC and optional blind acceptance scripts preserve the intended behavior. Agent execution mode does not change the UI driver: Claude Code bg/headless agents still test Web products with Playwright. QA 0.5.1+ first checks applicability: verified non-UI product scope reports UI QA as not applicable and links the caller's AC/integration evidence, while an existing UI with missing tools remains untested. `BLOCKED` never counts as passed, and producing a report does not mean QA passed. The report contract defines the completion rules for unattended callers.
+
+**Prefer Codex for QA spanning Web and desktop UI.** Web still uses the bundled Playwright MCP on either agent; the computer-use branch is Codex-only and requires suitable tools and access in that session. This plugin does not install or bundle a computer-use server. Unsupported targets or missing tools remain `NOT RUN`, not a code-reading substitute for UI testing. See [UI drivers and evidence](plugins/doc-qa/skills/qa/references/ui-driver.md).
 
 ## More packs are coming
 
@@ -84,7 +90,7 @@ A plugin brings the skills and the MCP configuration. It does not bring the tool
 | md2pdf | mermaid-cli | `npm install -g @mermaid-js/mermaid-cli` | same |
 | md2pdf | Chinese font | built in | `sudo apt install fonts-noto-cjk` |
 
-On Windows, run the agent inside WSL. `md2pdf` is a bash script, and weasyprint on native Windows wants its own GTK install. We tried to make it not matter. It mattered.
+On Windows, use WSL for `md2pdf`: it is a bash script, and native weasyprint needs its own GTK installation. Desktop QA separately requires a Codex session whose computer-use tools can access the target UI; WSL alone does not provide that capability.
 
 ## Using a skill without the plugin
 

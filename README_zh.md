@@ -36,10 +36,16 @@ kc_ai_skills 繼續做它本來就擅長的事：一大櫃可以單獨取用的 
 ### doc-qa
 
 - **project-docs**：讀既有專案的程式碼，寫出下一個接手的人會希望早就存在的文件。維護者拿到的是技術文件（Mermaid 圖、介面、維運）；終端使用者和管理者拿到的是附實機截圖的逐步操作手冊，畢竟從來沒有人是看架構圖找到按鈕的。
-- **qa**：專門對付那個經典時刻：單元測試全綠、API 測試全綠，第一個真人一碰介面就卡住。它把需求文件跟前後端程式碼擺在一起比對，挖出沒有人寫下來的規矩，轉成可追溯的測試案例，用 Playwright 實際跑過，最後寫一份結論絕不超出證據的報告。沒跑過的測試，不會生出「零缺陷」這種字。
+- **qa**：專門對付那個經典時刻：單元測試全綠、API 測試全綠，第一個真人一碰介面就卡住。它比對已核准需求／spec 與實作，產出可追溯案例；Web 用 Playwright MCP，桌面／跨 App 流程用具備工具的 Codex computer-use。證據依 driver 分開，原生 App 沒有瀏覽器 network／console 就明列限制。沒跑過的測試，不會生出「零缺陷」這種字。
 - **md2pdf**：把一份 Markdown 轉成 A4 PDF。Mermaid 圖、中文、寬表格、分頁都處理好了；這些坑我們已經一個一個踩過，你不用再踩。
 
 三個串起來剛好：`qa` 測試時會順手幫 `project-docs` 收集截圖，兩者的產出再交給 `md2pdf`，轉成可以直接夾在信裡、不用先道歉的檔案。
+
+`project-docs` 不是 QA 必經的前置階段：需要補建技術文件或手冊時才用，不從現況文件反推測試預期。QA 從已核准需求／spec 推案例，實跑的成功路徑素材也能在之後回補手冊。只是實作／hotfix 後維護既有文件時，使用 [align](https://github.com/KerberosClaw/kc_ai_skills/tree/main/align)。
+
+操作手冊描述該版本可用行為與已知限制；核准需求／AC 與選用的盲測驗收腳本保留預期行為。agent 的背景執行方式不影響 UI driver：Claude Code bg session／agents 測 Web 仍用 Playwright。QA 0.5.1+ 先查適用性：查證受測產品無 UI 時記 UI QA 不適用並連回原流程 AC／整合驗證證據；有 UI 卻缺工具仍是未測。`BLOCKED` 不算通過，報告產出也不等於 QA 通過；無人值守的完成判準由 QA 報告契約維護。
+
+**跨 Web 與桌面 UI 的 QA 建議用 Codex。** Web 仍由兩個 agent 都可用的 bundled Playwright MCP 操作；computer-use 分支僅限實際有工具且可存取目標的 Codex session。本 plugin 不安裝或內附 computer-use server；缺工具或不支援的段落標 `NOT RUN`，不能讀程式就當 UI 已實測。見 [UI driver 與證據](plugins/doc-qa/skills/qa/references/ui-driver.md)。
 
 ## 之後還會有更多 pack
 
@@ -84,7 +90,7 @@ plugin 會帶來 skill 和 MCP 設定，但不會幫你裝 skill 要呼叫的工
 | md2pdf | mermaid-cli | `npm install -g @mermaid-js/mermaid-cli` | 同左 |
 | md2pdf | 中文字型 | 內建 | `sudo apt install fonts-noto-cjk` |
 
-Windows 請在 WSL 裡跑 agent。`md2pdf` 是 bash 腳本，而且 weasyprint 在原生 Windows 上還要另外裝 GTK。我們試過讓這件事無所謂，結果它很有所謂。
+Windows 的 `md2pdf` 請在 WSL 裡跑：它是 bash 腳本，原生 weasyprint 也要另外裝 GTK。桌面 QA 則需要 computer-use 工具能存取目標 UI 的 Codex session；只有 WSL 不會自動取得這項能力。
 
 ## 不裝 plugin，只拿單一 skill
 

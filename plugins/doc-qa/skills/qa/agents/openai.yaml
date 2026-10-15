@@ -1,4 +1,4 @@
 interface:
   display_name: "QA"
-  short_description: "Find unstated UI requirements and verify them with Playwright"
-  default_prompt: "Use $qa to dig out the unstated requirements of this project, turn them into traceable test cases, run them with Playwright, and write the QA report."
+  short_description: "Verify UI flows with Playwright or Codex computer-use"
+  default_prompt: "Use $qa to derive traceable UI tests from approved requirements, run Web flows with Playwright or desktop flows with available Codex computer-use tools, and report evidence and limitations."
