@@ -9,9 +9,9 @@
     {
       "name": "doc-qa",
       "source": "./plugins/doc-qa",
-      "description": "Document an existing project, QA it through the real UI with Playwright, and export the results as PDF.",
+      "description": "Document a project, QA Web UI with Playwright or desktop UI with available Codex computer-use, and export results as PDF.",
       "category": "documentation",
-      "tags": ["documentation", "qa", "playwright", "pdf"]
+      "tags": ["documentation", "qa", "playwright", "computer-use", "pdf"]
     }
   ]
 }

@@ -1,7 +1,7 @@
 ---
 name: project-docs
 description: "Use when an existing software project needs a documentation audit, missing technical documents, an end-user or administrator manual, or an updated handoff based on its actual code and operations. Scan the project, assess applicable deliverables, and maintain linked Markdown documentation with Mermaid diagrams. Not for designing a new feature, changing product code, or publishing a release."
-version: 0.3.0
+version: 0.3.1
 status: mvp
 triggers:
   - "/project-docs"
@@ -127,6 +127,8 @@ triggers:
 最後留下：更新哪些現行頁、覆蓋哪些模組、哪些沒看／沒驗、仍缺什麼、由哪個入口接續，以及何種變更需要更新文件。再次執行先比較來源版本與現行頁，增量修訂；不要重建第二套 docs 或為同一次證據再生一份「最新版」。
 
 ## 分流與邊界
+
+不把本 skill 設成每輪 QA 的前置關卡。QA 的需求／spec 與案例不由本 skill 代寫；缺必要文件時可先補建，有實跑素材後也可再更新手冊。若任務只是讓既有文件跟上 hotfix／實作，使用 [align](https://github.com/KerberosClaw/kc_ai_skills/tree/main/align)；本 skill 保留較廣的文件盤點、補建與讀者交接工作，不要求兩者每次都跑。
 
 需要新功能設計走 `spec`，需求不明確才走 `grill`；要查 bug 根因走 `diagnose`；明確要求公開發布整備可接 `prep-repo`。可用 `workflow-router` 選擇，但缺少其他 skill 也能完成本文的文件任務，不以安裝它們作前置條件。
 
