@@ -30,6 +30,8 @@ CLI／背景服務的命令測試仍是其他驗證層；不能因為用 compute
 
 先確認工具文件與當前可用方法。使用可存取的無障礙樹／DOM、network、console 與截圖；具體規則沿用 run-discipline。若操作包含原生檔案選擇器或其他桌面段落，另外記錄該段的 driver 與證據，不默認 Playwright 已測過。
 
+Playwright MCP 預設只讓截圖等檔案存進執行端目前的工作目錄（例如 session 進入 worktree 後就是該 worktree）與其 `.playwright-mcp/`。指定的證據目錄在這之外時，存檔會被拒（`outside allowed roots`）；先用工作目錄內的相對路徑存，再搬到證據目錄並保留原檔名對應，搬完確認沒有留在 repo 裡被一起提交。不要為了存檔去改 MCP 設定或開啟不受限的檔案存取。
+
 ## Codex computer-use：桌面證據
 
 - 使用該 session 實際提供的 computer-use／CUA 工具（例如 `mcp__cua_repl`），先讀其使用說明，依允許的入口選擇已授權目標 App／視窗，再使用文件中存在的 API。不要從別次 session 猜方法名，也不要用 shell 腳本或另一套 GUI automation 偷換操作管道。
