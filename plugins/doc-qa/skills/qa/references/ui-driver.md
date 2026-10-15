@@ -4,6 +4,8 @@
 
 ## 選擇操作方式
 
+**看受測產品的介面，不看 agent 是否在背景執行。** Claude Code bg session／agents、headless session 或無人值守 agent 測 Web 時，仍使用 Playwright MCP；「背景執行」不構成 UI QA 不適用的理由。
+
 | 目標 | 操作方式 | 執行端 |
 |---|---|---|
 | Web UI | 優先 Playwright MCP | Claude Code 或 Codex，只要實際有可用工具 |
@@ -15,6 +17,8 @@
 Computer-use 是執行端能力，不是此 plugin 額外啟動的 MCP server；不要在 `.mcp.json` 裡加一個假想的 computer-use server，也不在 QA 中自行安裝、開權限或改系統設定。沒有工具或目標不受支援時，該段標 `NOT RUN` 並回報缺什麼，不以程式碼閱讀或 API 測試充當 UI 實跑。
 
 CLI／背景服務的命令測試仍是其他驗證層；不能因為用 computer-use 看了終端畫面，就把它改稱已完成使用者介面 QA。
+
+若受測產品在已核准範圍確實沒有 UI，先從需求、入口與受影響的呼叫鏈確認沒有 Web／桌面／跨 App 流程需要驗證，在階段 0 留下依據，直接進階段 4，整體狀態記 `UI QA 不適用`，不要求 UI driver、不虛構案例或 PASS。受測產品只有 CLI／背景服務時，其 AC 與整合驗證仍由原執行流程完成，報告連到其證據，再接 align 與收尾。有 UI 卻缺工具、環境或權限，或尚不能確認 UI 影響時，不得使用不適用；依缺口記 `NOT RUN`／待確認。
 
 ## 在階段 0 記錄
 

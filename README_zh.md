@@ -43,6 +43,8 @@ kc_ai_skills 繼續做它本來就擅長的事：一大櫃可以單獨取用的 
 
 `project-docs` 不是 QA 必經的前置階段：需要補建技術文件或手冊時才用，不從現況文件反推測試預期。QA 從已核准需求／spec 推案例，實跑的成功路徑素材也能在之後回補手冊。只是實作／hotfix 後維護既有文件時，使用 [align](https://github.com/KerberosClaw/kc_ai_skills/tree/main/align)。
 
+操作手冊描述該版本可用行為與已知限制；核准需求／AC 與選用的盲測驗收腳本保留預期行為。agent 的背景執行方式不影響 UI driver：Claude Code bg session／agents 測 Web 仍用 Playwright。QA 0.5.1+ 先查適用性：查證受測產品無 UI 時記 UI QA 不適用並連回原流程 AC／整合驗證證據；有 UI 卻缺工具仍是未測。`BLOCKED` 不算通過，報告產出也不等於 QA 通過；無人值守的完成判準由 QA 報告契約維護。
+
 **跨 Web 與桌面 UI 的 QA 建議用 Codex。** Web 仍由兩個 agent 都可用的 bundled Playwright MCP 操作；computer-use 分支僅限實際有工具且可存取目標的 Codex session。本 plugin 不安裝或內附 computer-use server；缺工具或不支援的段落標 `NOT RUN`，不能讀程式就當 UI 已實測。見 [UI driver 與證據](plugins/doc-qa/skills/qa/references/ui-driver.md)。
 
 ## 之後還會有更多 pack
