@@ -65,8 +65,28 @@
 
 ## 通知
 
-- **方式**：<指令或管道；憑證從 `<環境變數名>` 讀>
-- **送達怎麼確認**：<例：回執是「已送達」才算>
+owl 照固定事件（`started`、`progress`、`attention`、`needs_you`、`completed`、`failed`）呼叫這裡寫的指令：`<通知指令> <事件> "<一行訊息>" [<結果檔路徑>]`，並帶 `OWL_TASK`、`OWL_WORKDIR` 兩個環境變數。指令離開碼 0 代表已送達。契約細節見 owl:run 的 `references/notify.md`。三種寫法擇一，其餘刪掉：
+
+- **自己的指令**（團隊既有的通知服務、Slack 或 email 腳本；參數格式不同就寫一支小包裝）：
+
+  ```text
+  通知指令：~/bin/team_notify_wrapper.sh
+  需要的環境變數：TEAM_NOTIFY_TOKEN（放在 ~/.config/team/notify.env，不進 repo）
+  ```
+
+- **owl 內附的 `owl_notify.sh`**（Telegram、Discord、Slack、iMessage；先複製到執行主機的固定位置）：
+
+  ```text
+  通知指令：~/bin/owl_notify.sh
+  OWL_NOTIFY_CHANNEL=slack
+  OWL_NOTIFY_CONFIG=~/.config/owl/notify.env   # 裡面放 SLACK_WEBHOOK_URL，不進 repo
+  ```
+
+- **不通知**：只寫工作目錄的 `notify.log` 與結果交接，人回來時自己看。
+
+  ```text
+  通知指令：無
+  ```
 
 ## 授權底線
 

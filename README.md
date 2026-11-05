@@ -55,7 +55,7 @@ You know the overnight run that reports "all green", and then the first real use
 It is for handing agreed work to an agent that runs while you are not watching (asleep, in a meeting, or simply on another machine), and getting it back in a state you can actually trust.
 
 - **brief**: turns agreed work into a dispatch an unattended agent can finish without phoning anyone at 2 a.m. It reads the repo's `owl.md` first; when something is missing, it asks you one question at a time and writes the answer back. Its favourite subject is test fidelity: every way the test environment differs from production goes into a table, and each row is either closed, or explained and moved to a read-only check on production after release. "It was optional" is not an explanation. We tried.
-- **run**: the night-shift rulebook. State and logs live in files, so a crash, a usage limit or another agent taking over halfway loses nothing. New instructions written into the state file win. Shared resources (a production environment, a browser profile, a shared account) get a lock with a heartbeat, and nobody clears somebody else's lock, however dead it looks. Gaps in `owl.md` never stop the run; they get written down for the morning shift.
+- **run**: the night-shift rulebook. State and logs live in files, so a crash, a usage limit or another agent taking over halfway loses nothing. New instructions written into the state file win. Shared resources (a production environment, a browser profile, a shared account) get a lock with a heartbeat, and nobody clears somebody else's lock, however dead it looks. Gaps in `owl.md` never stop the run; they get written down for the morning shift. And owl has no opinion on how you hear about any of this: it fires six fixed events, and `owl.md` names the command that delivers them. That can be your team's own notifier, the bundled script (Telegram, Discord, Slack, iMessage), or nothing at all, in which case everything lands in a log file and waits for you like a cat by the door.
 - **accept**: the morning shift. It reads the handoff and then refuses to take its word for anything: it checks the claims against the live environment, runs the real-user question set with a read-only production test account, walks you through the gaps the night shift recorded, and adds every new failure to the question set so the next run is tested against it.
 
 The real-user question set is the quiet hero here. Each entry is a question phrased the way people actually ask it, plus the expected *behaviour* ("answers from the meeting notes", "does not ask a clarifying question"), never an expected answer. The wording of an answer changes every run; the behaviour should not.
@@ -106,7 +106,8 @@ A plugin brings the skills and the MCP configuration. It does not bring the tool
 | md2pdf | weasyprint | `brew install weasyprint` | `sudo apt install weasyprint` |
 | md2pdf | mermaid-cli | `npm install -g @mermaid-js/mermaid-cli` | same |
 | md2pdf | Chinese font | built in | `sudo apt install fonts-noto-cjk` |
-| owl | bash (for the lock script) | built in | built in |
+| owl | bash (lock and notify scripts) | built in | built in |
+| owl | curl, python3 (bundled notify script, optional) | built in | `sudo apt install curl python3` |
 | owl | review-gate skill | from [kc_ai_skills](https://github.com/KerberosClaw/kc_ai_skills/tree/main/review-gate) | same |
 
 On Windows, use WSL for `md2pdf`: it is a bash script, and native weasyprint needs its own GTK installation. Desktop QA separately requires a Codex session whose computer-use tools can access the target UI; WSL alone does not provide that capability.

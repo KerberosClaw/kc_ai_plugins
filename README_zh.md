@@ -55,7 +55,7 @@ kc_ai_skills 繼續做它本來就擅長的事：一大櫃可以單獨取用的 
 它管的是：把談妥的工作交給一個你不在場時跑的 agent（你可能在睡覺、在開會，或它根本跑在另一台機器上），而且交回來的東西你真的敢用。
 
 - **brief**：把談妥的工作寫成工單，讓無人值守的 agent 不必半夜打電話問人也做得完。它先讀 repo 的 `owl.md`，缺什麼就一次問你一題，答完寫回去。它最在意的是「測試要像正式環境」：測試環境跟正式環境哪裡不一樣，全部列成一張表。每一列要嘛補齊，要嘛寫出補不齊的理由，改成上線後在正式環境用唯讀方式驗。「這項是選做」不算理由，我們試過了。
-- **run**：夜班守則。狀態和紀錄都寫在檔案裡，agent 當機也好，撞到用量上限也好，半路換人接手也好，進度都不會掉。寫進狀態檔的新指示優先。共用資源（正式環境、瀏覽器設定檔、共用帳號）用帶心跳的鎖；別人的鎖，看起來再怎麼像死了也不准清。`owl.md` 有缺口不會讓它停下來，它會記下來留給早班。
+- **run**：夜班守則。狀態和紀錄都寫在檔案裡，agent 當機也好，撞到用量上限也好，半路換人接手也好，進度都不會掉。寫進狀態檔的新指示優先。共用資源（正式環境、瀏覽器設定檔、共用帳號）用帶心跳的鎖；別人的鎖，看起來再怎麼像死了也不准清。`owl.md` 有缺口不會讓它停下來，它會記下來留給早班。至於你要怎麼收到這些消息，owl 沒有意見：它只會在固定的六種事件發生時呼叫一個指令，指令是什麼寫在 `owl.md`。可以是團隊自己的通知服務，可以是內附的腳本（Telegram、Discord、Slack、iMessage），也可以乾脆不通知；那樣的話，所有消息都寫進紀錄檔，像貓一樣蹲在門口等你回來。
 - **accept**：早班接班。它會讀結果交接，然後一個字都不輕信：拿交接的說法去跟實際環境對，用唯讀的正式環境測試帳號跑真人問法題組，把夜班記下的缺口一題一題問你，再把這次抓到的新漏洞全部加進題組，下一輪就會被測到。
 
 真人問法題組是這裡的幕後功臣。每一題都是一般人實際的問法，加上預期的「行為」（「要用會議紀錄回答」「不能反問」），從來不寫標準答案。回答的字句每次都不一樣，行為不該跟著變。
@@ -106,7 +106,8 @@ plugin 會帶來 skill 和 MCP 設定，但不會幫你裝 skill 要呼叫的工
 | md2pdf | weasyprint | `brew install weasyprint` | `sudo apt install weasyprint` |
 | md2pdf | mermaid-cli | `npm install -g @mermaid-js/mermaid-cli` | 同左 |
 | md2pdf | 中文字型 | 內建 | `sudo apt install fonts-noto-cjk` |
-| owl | bash（鎖腳本用） | 內建 | 內建 |
+| owl | bash（鎖與通知腳本用） | 內建 | 內建 |
+| owl | curl、python3（內附通知腳本用，選用） | 內建 | `sudo apt install curl python3` |
 | owl | review-gate skill | 從 [kc_ai_skills](https://github.com/KerberosClaw/kc_ai_skills/tree/main/review-gate) 裝 | 同左 |
 
 Windows 的 `md2pdf` 請在 WSL 裡跑：它是 bash 腳本，原生 weasyprint 也要另外裝 GTK。桌面 QA 則需要 computer-use 工具能存取目標 UI 的 Codex session；只有 WSL 不會自動取得這項能力。
