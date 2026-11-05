@@ -32,6 +32,7 @@ kc_ai_skills 繼續做它本來就擅長的事：一大櫃可以單獨取用的 
 | Plugin | 包含的 skill | 附帶的 MCP | 用來做什麼 |
 |---|---|---|---|
 | [doc-qa](plugins/doc-qa/) | `project-docs`、`qa`、`md2pdf` | Playwright | 幫既有專案補文件、從真實介面做 QA，兩者都能轉成 PDF 交出去 |
+| [owl](plugins/owl/) | `brief`、`run`、`accept` | 無 | 把談妥的工作交給無人值守的 agent，測試要像正式環境，交回來的東西要驗過才算 |
 
 ### doc-qa
 
@@ -47,6 +48,20 @@ kc_ai_skills 繼續做它本來就擅長的事：一大櫃可以單獨取用的 
 
 **跨 Web 與桌面 UI 的 QA 建議用 Codex。** Web 仍由兩個 agent 都可用的 bundled Playwright MCP 操作；computer-use 分支僅限實際有工具且可存取目標的 Codex session。本 plugin 不安裝或內附 computer-use server；缺工具或不支援的段落標 `NOT RUN`，不能讀程式就當 UI 已實測。見 [UI driver 與證據](plugins/doc-qa/skills/qa/references/ui-driver.md)。
 
+### owl
+
+這個情境你可能也遇過：agent 跑了一整晚，回報全綠，結果第一個真人問了第一個真實的問題，整套就倒了。我們就遇過一次。測試機上只有五份文件。正式環境要開的功能，在測試計畫裡被列成「選做」，所以沒人開。驗收題全是寫程式的那個 agent 自己出的，等於讓學生自己出考卷，再自己改分數。owl 就是隔天早上寫出來的。
+
+它管的是：把談妥的工作交給一個你不在場時跑的 agent（你可能在睡覺、在開會，或它根本跑在另一台機器上），而且交回來的東西你真的敢用。
+
+- **brief**：把談妥的工作寫成工單，讓無人值守的 agent 不必半夜打電話問人也做得完。它先讀 repo 的 `owl.md`，缺什麼就一次問你一題，答完寫回去。它最在意的是「測試要像正式環境」：測試環境跟正式環境哪裡不一樣，全部列成一張表。每一列要嘛補齊，要嘛寫出補不齊的理由，改成上線後在正式環境用唯讀方式驗。「這項是選做」不算理由，我們試過了。
+- **run**：夜班守則。狀態和紀錄都寫在檔案裡，agent 當機也好，撞到用量上限也好，半路換人接手也好，進度都不會掉。寫進狀態檔的新指示優先。共用資源（正式環境、瀏覽器設定檔、共用帳號）用帶心跳的鎖；別人的鎖，看起來再怎麼像死了也不准清。`owl.md` 有缺口不會讓它停下來，它會記下來留給早班。
+- **accept**：早班接班。它會讀結果交接，然後一個字都不輕信：拿交接的說法去跟實際環境對，用唯讀的正式環境測試帳號跑真人問法題組，把夜班記下的缺口一題一題問你，再把這次抓到的新漏洞全部加進題組，下一輪就會被測到。
+
+真人問法題組是這裡的幕後功臣。每一題都是一般人實際的問法，加上預期的「行為」（「要用會議紀錄回答」「不能反問」），從來不寫標準答案。回答的字句每次都不一樣，行為不該跟著變。
+
+owl 刻意不管的事：輕量的查修，就是「服務好像卡住了，去看一下」那種。這種事不需要寫工單，硬包成工單只是在演文書作業。審查的力氣也看風險：動到正式環境的工單，最多跑三輪 [review-gate](https://github.com/KerberosClaw/kc_ai_skills/tree/main/review-gate)；其他的跑一輪。review-gate 在 kc_ai_skills，要一起裝。
+
 ## 之後還會有更多 pack
 
 doc-qa 是第一個 pack，不會是最後一個。裝一個 pack 比手動接 skill 輕鬆太多，我們完全打算繼續這樣做下去。
@@ -60,15 +75,17 @@ doc-qa 是第一個 pack，不會是最後一個。裝一個 pack 比手動接 s
 ```text
 /plugin marketplace add KerberosClaw/kc_ai_plugins
 /plugin install doc-qa@kc-ai-plugins
+/plugin install owl@kc-ai-plugins
 ```
 
-skill 名稱會加上 plugin 當前綴：`/doc-qa:qa`、`/doc-qa:project-docs`、`/doc-qa:md2pdf`。直接用白話講也行（「幫這個專案跑一輪 QA」），agent 會自己找到對的那個。
+skill 名稱會加上 plugin 當前綴：`/doc-qa:qa`、`/doc-qa:project-docs`、`/doc-qa:md2pdf`、`/owl:brief`、`/owl:run`、`/owl:accept`。直接用白話講也行（「幫這個專案跑一輪 QA」），agent 會自己找到對的那個。
 
 ### Codex
 
 ```bash
 codex plugin marketplace add KerberosClaw/kc_ai_plugins
 codex plugin add doc-qa@kc-ai-plugins
+codex plugin add owl@kc-ai-plugins
 ```
 
 ### 更新
@@ -89,6 +106,8 @@ plugin 會帶來 skill 和 MCP 設定，但不會幫你裝 skill 要呼叫的工
 | md2pdf | weasyprint | `brew install weasyprint` | `sudo apt install weasyprint` |
 | md2pdf | mermaid-cli | `npm install -g @mermaid-js/mermaid-cli` | 同左 |
 | md2pdf | 中文字型 | 內建 | `sudo apt install fonts-noto-cjk` |
+| owl | bash（鎖腳本用） | 內建 | 內建 |
+| owl | review-gate skill | 從 [kc_ai_skills](https://github.com/KerberosClaw/kc_ai_skills/tree/main/review-gate) 裝 | 同左 |
 
 Windows 的 `md2pdf` 請在 WSL 裡跑：它是 bash 腳本，原生 weasyprint 也要另外裝 GTK。桌面 QA 則需要 computer-use 工具能存取目標 UI 的 Codex session；只有 WSL 不會自動取得這項能力。
 

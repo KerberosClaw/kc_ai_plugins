@@ -1,0 +1,4 @@
+interface:
+  display_name: "owl accept"
+  short_description: "Check what an unattended run handed back"
+  default_prompt: "Use $accept to check this result handoff against the live environments, run the real-user question set, resolve the recorded owl.md gaps with me, and add new failures to the question set."

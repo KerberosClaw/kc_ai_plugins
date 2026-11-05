@@ -1,0 +1,13 @@
+{
+  "name": "owl",
+  "version": "0.1.0",
+  "description": "Hand agreed work to an unattended agent and get it back in a state you can trust: write the dispatch, run it, accept it. Skills: brief, run, accept.",
+  "author": {
+    "name": "Kerberos Claw",
+    "url": "https://github.com/KerberosClaw"
+  },
+  "homepage": "https://github.com/KerberosClaw/kc_ai_plugins/tree/main/plugins/owl",
+  "repository": "https://github.com/KerberosClaw/kc_ai_plugins",
+  "license": "MIT",
+  "keywords": ["unattended", "dispatch", "handoff", "overnight", "release", "acceptance", "lock"]
+}

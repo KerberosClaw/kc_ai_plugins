@@ -32,6 +32,7 @@ kc_ai_skills keeps doing what it was always good at: a big shelf of individual s
 | Plugin | Skills | Bundled MCP | What it is for |
 |---|---|---|---|
 | [doc-qa](plugins/doc-qa/) | `project-docs`, `qa`, `md2pdf` | Playwright | Document an existing project, QA it through the real UI, and hand both over as PDF |
+| [owl](plugins/owl/) | `brief`, `run`, `accept` | none | Hand agreed work to an unattended agent with tests that look like production, then check what comes back |
 
 ### doc-qa
 
@@ -47,6 +48,20 @@ Manuals describe the version's usable behavior and known limitations; approved r
 
 **Prefer Codex for QA spanning Web and desktop UI.** Web still uses the bundled Playwright MCP on either agent; the computer-use branch is Codex-only and requires suitable tools and access in that session. This plugin does not install or bundle a computer-use server. Unsupported targets or missing tools remain `NOT RUN`, not a code-reading substitute for UI testing. See [UI drivers and evidence](plugins/doc-qa/skills/qa/references/ui-driver.md).
 
+### owl
+
+You know the overnight run that reports "all green", and then the first real user asks the first real question and the whole thing falls over? We had one of those. The test box had five documents. A feature production had switched on was marked "optional" in the test plan, so nobody switched it on. And every acceptance question was written by the same agent that wrote the code, which is a bit like letting students set their own exam and then mark it. owl is what we wrote the next morning.
+
+It is for handing agreed work to an agent that runs while you are not watching (asleep, in a meeting, or simply on another machine), and getting it back in a state you can actually trust.
+
+- **brief**: turns agreed work into a dispatch an unattended agent can finish without phoning anyone at 2 a.m. It reads the repo's `owl.md` first; when something is missing, it asks you one question at a time and writes the answer back. Its favourite subject is test fidelity: every way the test environment differs from production goes into a table, and each row is either closed, or explained and moved to a read-only check on production after release. "It was optional" is not an explanation. We tried.
+- **run**: the night-shift rulebook. State and logs live in files, so a crash, a usage limit or another agent taking over halfway loses nothing. New instructions written into the state file win. Shared resources (a production environment, a browser profile, a shared account) get a lock with a heartbeat, and nobody clears somebody else's lock, however dead it looks. Gaps in `owl.md` never stop the run; they get written down for the morning shift.
+- **accept**: the morning shift. It reads the handoff and then refuses to take its word for anything: it checks the claims against the live environment, runs the real-user question set with a read-only production test account, walks you through the gaps the night shift recorded, and adds every new failure to the question set so the next run is tested against it.
+
+The real-user question set is the quiet hero here. Each entry is a question phrased the way people actually ask it, plus the expected *behaviour* ("answers from the meeting notes", "does not ask a clarifying question"), never an expected answer. The wording of an answer changes every run; the behaviour should not.
+
+What owl leaves alone on purpose: lightweight troubleshooting, the "the service looks stuck, go have a look" kind. That needs no written dispatch, and wrapping it in one would be paperwork cosplay. Review effort scales with risk as well: anything that touches production gets up to three rounds of [review-gate](https://github.com/KerberosClaw/kc_ai_skills/tree/main/review-gate), everything else gets one. review-gate lives in kc_ai_skills, so install it alongside.
+
 ## More packs are coming
 
 doc-qa is the first pack, not the last. Installing one pack turned out to be so much less painful than wiring up skills by hand that we fully intend to keep doing it.
@@ -60,15 +75,17 @@ The rule for what becomes a pack: **a few skills that people keep using together
 ```text
 /plugin marketplace add KerberosClaw/kc_ai_plugins
 /plugin install doc-qa@kc-ai-plugins
+/plugin install owl@kc-ai-plugins
 ```
 
-Skills get the plugin name as a prefix: `/doc-qa:qa`, `/doc-qa:project-docs`, `/doc-qa:md2pdf`. Or just ask in plain words ("run a QA pass on this project"); the agent will figure it out.
+Skills get the plugin name as a prefix: `/doc-qa:qa`, `/doc-qa:project-docs`, `/doc-qa:md2pdf`, `/owl:brief`, `/owl:run`, `/owl:accept`. Or just ask in plain words ("run a QA pass on this project"); the agent will figure it out.
 
 ### Codex
 
 ```bash
 codex plugin marketplace add KerberosClaw/kc_ai_plugins
 codex plugin add doc-qa@kc-ai-plugins
+codex plugin add owl@kc-ai-plugins
 ```
 
 ### Update
@@ -89,6 +106,8 @@ A plugin brings the skills and the MCP configuration. It does not bring the tool
 | md2pdf | weasyprint | `brew install weasyprint` | `sudo apt install weasyprint` |
 | md2pdf | mermaid-cli | `npm install -g @mermaid-js/mermaid-cli` | same |
 | md2pdf | Chinese font | built in | `sudo apt install fonts-noto-cjk` |
+| owl | bash (for the lock script) | built in | built in |
+| owl | review-gate skill | from [kc_ai_skills](https://github.com/KerberosClaw/kc_ai_skills/tree/main/review-gate) | same |
 
 On Windows, use WSL for `md2pdf`: it is a bash script, and native weasyprint needs its own GTK installation. Desktop QA separately requires a Codex session whose computer-use tools can access the target UI; WSL alone does not provide that capability.
 
