@@ -1,0 +1,4 @@
+interface:
+  display_name: "owl brief"
+  short_description: "Write an unattended dispatch whose tests match production"
+  default_prompt: "Use $brief to turn this agreed work into a dispatch for an unattended agent: read owl.md, fill its gaps with me one question at a time, list every test-versus-production difference, and put the real-user question set into acceptance."

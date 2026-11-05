@@ -1,0 +1,4 @@
+interface:
+  display_name: "owl run"
+  short_description: "Execute or resume an unattended dispatch safely"
+  default_prompt: "Use $run to execute this dispatch unattended: keep state.md and run_log.md, honour new instructions in state.md, take locks on shared resources, confirm notification delivery, and record owl.md gaps instead of stopping to ask."

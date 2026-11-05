@@ -12,6 +12,13 @@
       "description": "Document a project, QA Web UI with Playwright or desktop UI with available Codex computer-use, and export results as PDF.",
       "category": "documentation",
       "tags": ["documentation", "qa", "playwright", "computer-use", "pdf"]
+    },
+    {
+      "name": "owl",
+      "source": "./plugins/owl",
+      "description": "Hand agreed work to an unattended agent: write a dispatch whose tests match production, run it with locks and resumable state, and accept the result against the live environment.",
+      "category": "workflow",
+      "tags": ["unattended", "dispatch", "handoff", "release", "acceptance", "lock"]
     }
   ]
 }
