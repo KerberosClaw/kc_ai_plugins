@@ -95,6 +95,18 @@ codex plugin add owl@kc-ai-plugins
 | Claude Code | `/plugin marketplace update kc-ai-plugins` |
 | Codex | `codex plugin marketplace upgrade kc-ai-plugins` |
 
+### owl 的兩支腳本
+
+鎖腳本和通知腳本要放在固定的位置：放鎖的那台、跑派工的那台各放一份。plugin 更新時安裝目錄可能會變，所以複製一次，再把路徑寫進 `owl.md`：
+
+```bash
+mkdir -p ~/bin
+cp plugins/owl/skills/run/scripts/owl_lock.sh plugins/owl/skills/run/scripts/owl_notify.sh ~/bin/
+chmod +x ~/bin/owl_lock.sh ~/bin/owl_notify.sh
+```
+
+在這個 repo 的 clone 裡跑。plugin 更新後如果腳本有改，再複製一次。設定通知時先用 `OWL_NOTIFY_DRY_RUN=1` 測，這樣什麼都不會真的送出去。
+
 ## 系統需求
 
 plugin 會帶來 skill 和 MCP 設定，但不會幫你裝 skill 要呼叫的工具。下面這些要先裝在機器上：
@@ -107,14 +119,14 @@ plugin 會帶來 skill 和 MCP 設定，但不會幫你裝 skill 要呼叫的工
 | md2pdf | mermaid-cli | `npm install -g @mermaid-js/mermaid-cli` | 同左 |
 | md2pdf | 中文字型 | 內建 | `sudo apt install fonts-noto-cjk` |
 | owl | bash（鎖與通知腳本用） | 內建 | 內建 |
-| owl | curl、python3（內附通知腳本用，選用） | 內建 | `sudo apt install curl python3` |
+| owl | curl、python3（內附通知腳本用，選用） | curl 內建；python3 要裝開發者工具（`xcode-select --install`） | `sudo apt install curl python3` |
 | owl | review-gate skill | 從 [kc_ai_skills](https://github.com/KerberosClaw/kc_ai_skills/tree/main/review-gate) 裝 | 同左 |
 
 Windows 的 `md2pdf` 請在 WSL 裡跑：它是 bash 腳本，原生 weasyprint 也要另外裝 GTK。桌面 QA 則需要 computer-use 工具能存取目標 UI 的 Codex session；只有 WSL 不會自動取得這項能力。
 
 ## 不裝 plugin，只拿單一 skill
 
-每個 skill 都是 `plugins/<plugin>/skills/` 底下一個獨立的資料夾。只想要其中一個，就照老方法把整個資料夾複製到 `~/.claude/skills/` 或 `~/.codex/skills/`。這樣會少了附帶的 MCP，也不會自動更新，不過我們不會評判你。
+每個 skill 都是 `plugins/<plugin>/skills/` 底下一個獨立的資料夾。只想要其中一個，就照老方法把整個資料夾複製到 `~/.claude/skills/` 或 `~/.codex/skills/`。這樣會少了附帶的 MCP，也不會自動更新，不過我們不會評判你。只有一個例外：owl 的 `accept` 會讀 `brief/templates/` 裡的 `owl.md` 範本，複製時要一起帶走。
 
 ## Repo 結構
 

@@ -14,10 +14,12 @@
 # (default 30) is reported as possibly stale. It is never cleared automatically.
 #
 # Exit codes:
-#   acquire    0 taken (or already yours)   1 held by someone else (owner printed)   2 usage error
-#   heartbeat  0 refreshed                  1 not held, or not yours                  2 usage error
-#   release    0 released (or not held)     1 not yours, left alone                   2 usage error
-#   status     0 free                       1 held, heartbeat fresh   3 held, heartbeat stale
+#   acquire    0 taken (or already yours)   1 held by someone else, owner file missing, or the
+#                                             owner file could not be written   2 usage/config error
+#   heartbeat  0 refreshed                  1 not held, not yours, or write failed     2 usage/config error
+#   release    0 released (or not held)     1 not yours / owner file missing, left alone   2 usage/config error
+#   status     0 free                       1 held, heartbeat fresh   3 held, heartbeat stale or owner file missing
+#   Treat every exit code other than 0 from acquire as "not taken".
 #
 # Portable across Linux and macOS: times are stored as epoch seconds, no GNU-only date flags.
 
@@ -30,6 +32,7 @@ ROOT="${OWL_LOCK_ROOT:-$HOME/.owl/locks}"
 LOCK="$ROOT/$NAME.lock.d"
 LOG="$ROOT/$NAME.log"
 STALE_MIN="${OWL_LOCK_STALE_MIN:-30}"
+[[ "$STALE_MIN" =~ ^[0-9]+$ ]] || { echo "OWL_LOCK_STALE_MIN must be a whole number of minutes: $STALE_MIN" >&2; exit 2; }
 
 now_epoch() { date +%s; }
 now_text() { date '+%Y-%m-%dT%H:%M:%S%z'; }
@@ -43,8 +46,11 @@ age_min() {  # minutes since last heartbeat; -1 when unreadable
 write_owner() {  # $1 id  $2 step  $3 started_text
   local tmp="$LOCK/.owner.$$"
   printf 'id: %s\nstep: %s\nhost: %s\nstarted: %s\nheartbeat: %s\nheartbeat_epoch: %s\n' \
-    "$1" "$2" "$(hostname)" "$3" "$(now_text)" "$(now_epoch)" > "$tmp" && mv -f "$tmp" "$LOCK/owner"
+    "$1" "$2" "$(hostname)" "$3" "$(now_text)" "$(now_epoch)" > "$tmp" 2>/dev/null && mv -f "$tmp" "$LOCK/owner" 2>/dev/null \
+    || { rm -f "$tmp" 2>/dev/null; echo "could not write the owner file in $LOCK" >&2; return 1; }
 }
+owner_missing() { [ -d "$LOCK" ] && [ ! -f "$LOCK/owner" ]; }
+missing_note() { echo "lock $NAME: the directory exists but its owner file is missing; hand it to a human (force-release), do not clear it yourself" >&2; }
 show() {
   if [ ! -d "$LOCK" ]; then echo "lock $NAME: free"; return; fi
   local a; a=$(age_min)
@@ -64,19 +70,25 @@ case "$cmd" in
     [ -L "$LOCK" ] && { echo "lock path is a symlink, refusing: $LOCK" >&2; exit 2; }
     mkdir -p "$ROOT"
     if mkdir "$LOCK" 2>/dev/null; then
-      write_owner "$1" "$2" "$(now_text)"; log "acquire	$1	$2"; echo "lock $NAME taken by $1 ($2)"; exit 0
+      if ! write_owner "$1" "$2" "$(now_text)"; then rmdir "$LOCK" 2>/dev/null; echo "lock $NAME not taken" >&2; exit 1; fi
+      log "acquire	$1	$2"; echo "lock $NAME taken by $1 ($2)"; exit 0
     fi
+    if owner_missing; then missing_note; show; exit 1; fi
     if [ "$(field id)" = "$1" ]; then
-      write_owner "$1" "$2" "$(field started)"; log "reacquire	$1	$2"; echo "lock $NAME was already yours; step and heartbeat refreshed ($1: $2)"; exit 0
+      write_owner "$1" "$2" "$(field started)" || exit 1
+      log "reacquire	$1	$2"; echo "lock $NAME was already yours; step and heartbeat refreshed ($1: $2)"; exit 0
     fi
     show; exit 1 ;;
   heartbeat)
     [ $# -eq 1 ] || { echo "usage: owl_lock.sh [-n NAME] heartbeat <owner-id>" >&2; exit 2; }
+    owner_missing && { missing_note; exit 1; }
     [ -d "$LOCK" ] && [ "$(field id)" = "$1" ] || { echo "lock $NAME is not held by $1; nothing refreshed" >&2; show; exit 1; }
-    write_owner "$1" "$(field step)" "$(field started)"; exit 0 ;;
+    write_owner "$1" "$(field step)" "$(field started)" || exit 1
+    exit 0 ;;
   release)
     [ $# -eq 1 ] || { echo "usage: owl_lock.sh [-n NAME] release <owner-id>" >&2; exit 2; }
     [ -d "$LOCK" ] || { echo "lock $NAME: already free"; exit 0; }
+    owner_missing && { missing_note; exit 1; }
     [ "$(field id)" = "$1" ] || { echo "lock $NAME is not held by $1; left alone" >&2; show; exit 1; }
     rm -f "$LOCK/owner" "$LOCK"/.owner.* && rmdir "$LOCK" && { log "release	$1"; echo "lock $NAME released ($1)"; exit 0; }
     echo "release failed: unexpected files in $LOCK" >&2; exit 1 ;;
@@ -90,10 +102,12 @@ case "$cmd" in
     exit 1 ;;
   force-release)
     [ $# -ge 1 ] || { echo "usage: owl_lock.sh [-n NAME] force-release <reason>  (humans only)" >&2; exit 2; }
+    # Only stops obvious non-interactive calls. Agents must not use force-release at all;
+    # that is enforced by the protocol, not by this check.
     [ -t 0 ] || { echo "force-release must be run by a human from a terminal" >&2; exit 2; }
     [ -d "$LOCK" ] || { echo "lock $NAME: already free"; exit 0; }
     show; prev=$(field id)
     rm -rf "$LOCK"; log "force-release	$prev	$*"; echo "lock $NAME force-released (was held by $prev; reason: $*)"; exit 0 ;;
   *)
-    sed -n '2,21p' "$0" | sed 's/^# \{0,1\}//'; exit 2 ;;
+    sed -n '2,23p' "$0" | sed 's/^# \{0,1\}//'; exit 2 ;;
 esac

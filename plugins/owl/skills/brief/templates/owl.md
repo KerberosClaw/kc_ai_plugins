@@ -47,11 +47,17 @@
 ## 真人問法題組
 
 - **位置**：<repo 內的路徑，例：`tests/real_questions.md`>
-- **格式**：每題「問題＋預期行為」，不寫標準答案。例：
+- **格式**：每題「問題＋預期行為」，不寫標準答案，另寫「前提」（要用哪個帳號、要先有哪些資料）。前提不成立時判「未驗證」，不判沒過，也不因此關開關。例：
 
-  | # | 問題 | 預期行為 | 來源 | 加入日期 |
-  |---|---|---|---|---|
-  | 1 | <使用者實際的問法> | <例：要用某類資料回答、不能反問> | <正式環境實測／使用紀錄抽樣／驗收抓到的漏洞> | <YYYY-MM-DD> |
+  | # | 問題 | 預期行為 | 前提（帳號、資料） | 來源 | 加入日期 |
+  |---|---|---|---|---|---|
+  | 1 | <使用者實際的問法> | <例：要用某類資料回答、不能反問> | <例：測試帳號要是那場會議的成員> | <正式環境實測／使用紀錄抽樣／驗收抓到的漏洞> | <YYYY-MM-DD> |
+
+- **不是問答系統的產品**（後台、模擬工具、排程服務）改叫「真人操作題組」，每題「操作＋預期行為」，其他欄位相同。例：
+
+  | # | 操作 | 預期行為 | 前提（帳號、資料） | 來源 | 加入日期 |
+  |---|---|---|---|---|---|
+  | 1 | <例：用一般使用者上傳一份超過上限的檔案> | <例：擋下並說明上限，不建任何資料> | <例：一般使用者帳號> | <來源> | <YYYY-MM-DD> |
 
 - **誰負責補**：<人或角色>；驗收抓到的漏洞由 accept 加進來
 
@@ -59,13 +65,13 @@
 
 | 鎖住的資源 | 指令 | 哪些動作要取 |
 |---|---|---|
-| <例：正式環境> | <例：`ssh <主機> owl_lock.sh -n prod acquire <派工名稱> "<步驟>"`> | <部署、重啟、改正式設定、寫正式資料> |
+| <例：正式環境> | <例：`ssh <主機> '~/bin/owl_lock.sh -n prod acquire <派工名稱> "<步驟>"'`> | <部署、重啟、改正式設定（含關功能開關）、寫正式資料> |
 
-沒有共用資源要鎖就寫「無」。規則照 owl:run 的鎖協定。
+遠端取鎖時，整段指令用單引號包起來，步驟文字用雙引號，並寫腳本的完整路徑；非互動的 SSH 多半讀不到 `~/bin` 這類 PATH。沒有共用資源要鎖就寫「無」。規則照 owl:run 的鎖協定。
 
 ## 通知
 
-owl 照固定事件（`started`、`progress`、`attention`、`needs_you`、`completed`、`failed`）呼叫這裡寫的指令：`<通知指令> <事件> "<一行訊息>" [<結果檔路徑>]`，並帶 `OWL_TASK`、`OWL_WORKDIR` 兩個環境變數。指令離開碼 0 代表已送達。契約細節見 owl:run 的 `references/notify.md`。三種寫法擇一，其餘刪掉：
+owl 照固定事件（`started`、`progress`、`attention`、`needs_you`、`completed`、`failed`）呼叫這裡寫的指令：`<通知指令> <事件> "<一行訊息>" [<結果檔路徑>]`，並帶 `OWL_TASK`、`OWL_WORKDIR` 兩個環境變數。指令離開碼 0 代表已送達。**通知指令寫成一行**，需要的環境變數直接接在指令前面，或寫成一支小包裝；不要分好幾行寫。契約細節見 owl:run 的 `references/notify.md`。三種寫法擇一，其餘刪掉：
 
 - **自己的指令**（團隊既有的通知服務、Slack 或 email 腳本；參數格式不同就寫一支小包裝）：
 
@@ -77,10 +83,10 @@ owl 照固定事件（`started`、`progress`、`attention`、`needs_you`、`comp
 - **owl 內附的 `owl_notify.sh`**（Telegram、Discord、Slack、iMessage；先複製到執行主機的固定位置）：
 
   ```text
-  通知指令：~/bin/owl_notify.sh
-  OWL_NOTIFY_CHANNEL=slack
-  OWL_NOTIFY_CONFIG=~/.config/owl/notify.env   # 裡面放 SLACK_WEBHOOK_URL，不進 repo
+  通知指令：OWL_NOTIFY_CHANNEL=slack OWL_NOTIFY_CONFIG=$HOME/.config/owl/notify.env ~/bin/owl_notify.sh
   ```
+
+  `notify.env` 裡放 `SLACK_WEBHOOK_URL`，不進 repo。沒設 `OWL_NOTIFY_CONFIG` 時，腳本會自己讀 `~/.config/owl/notify.env`（存在的話）。
 
 - **不通知**：只寫工作目錄的 `notify.log` 與結果交接，人回來時自己看。
 
@@ -90,7 +96,9 @@ owl 照固定事件（`started`、`progress`、`attention`、`needs_you`、`comp
 
 ## 授權底線
 
-- <不管工單怎麼寫，都要人親自做的事；例：刪除正式資料、清別人的鎖>
+工單與人的一般指示都蓋不過這裡。只有人在工作目錄 `state.md`「## 人的指示」逐條點名解除某一條，那一條才解除。執行中碰到這裡的事，run 不做，發 `needs_you`。
+
+- <要人親自做的事；例：刪除正式資料、清別人的鎖、覆蓋正式環境的設定檔>
 
 ## 已知缺口
 

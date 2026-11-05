@@ -95,6 +95,18 @@ codex plugin add owl@kc-ai-plugins
 | Claude Code | `/plugin marketplace update kc-ai-plugins` |
 | Codex | `codex plugin marketplace upgrade kc-ai-plugins` |
 
+### owl's two scripts
+
+The lock and notify scripts should live at a fixed path on the machine that holds the lock or runs the dispatch, because the plugin's install directory can move when it updates. Copy them once and name that path in your `owl.md`:
+
+```bash
+mkdir -p ~/bin
+cp plugins/owl/skills/run/scripts/owl_lock.sh plugins/owl/skills/run/scripts/owl_notify.sh ~/bin/
+chmod +x ~/bin/owl_lock.sh ~/bin/owl_notify.sh
+```
+
+Run it from a clone of this repository. Repeat after an update if the scripts changed. Test a notify setup with `OWL_NOTIFY_DRY_RUN=1` first, so nothing is actually sent.
+
 ## System requirements
 
 A plugin brings the skills and the MCP configuration. It does not bring the tools those skills call, so these need to be on the machine already:
@@ -107,14 +119,14 @@ A plugin brings the skills and the MCP configuration. It does not bring the tool
 | md2pdf | mermaid-cli | `npm install -g @mermaid-js/mermaid-cli` | same |
 | md2pdf | Chinese font | built in | `sudo apt install fonts-noto-cjk` |
 | owl | bash (lock and notify scripts) | built in | built in |
-| owl | curl, python3 (bundled notify script, optional) | built in | `sudo apt install curl python3` |
+| owl | curl, python3 (bundled notify script, optional) | curl is built in; python3 comes with the developer tools (`xcode-select --install`) | `sudo apt install curl python3` |
 | owl | review-gate skill | from [kc_ai_skills](https://github.com/KerberosClaw/kc_ai_skills/tree/main/review-gate) | same |
 
 On Windows, use WSL for `md2pdf`: it is a bash script, and native weasyprint needs its own GTK installation. Desktop QA separately requires a Codex session whose computer-use tools can access the target UI; WSL alone does not provide that capability.
 
 ## Using a skill without the plugin
 
-Every skill is a self-contained folder under `plugins/<plugin>/skills/`. If you only want one, copy the whole folder into `~/.claude/skills/` or `~/.codex/skills/` like in the old days. You give up the bundled MCP server and automatic updates, but we won't judge.
+Every skill is a self-contained folder under `plugins/<plugin>/skills/`. If you only want one, copy the whole folder into `~/.claude/skills/` or `~/.codex/skills/` like in the old days. You give up the bundled MCP server and automatic updates, but we won't judge. One exception: owl's `accept` reads the `owl.md` template from `brief/templates/`, so copy that file along with it.
 
 ## Repository layout
 

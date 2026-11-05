@@ -12,7 +12,9 @@
 # Environment:
 #   OWL_TASK              dispatch name, shown in the message (set by owl)
 #   OWL_NOTIFY_CHANNEL    telegram | discord | slack | imessage   (required)
-#   OWL_NOTIFY_CONFIG     optional private env file to source first (a TRUSTED shell file you own)
+#   OWL_NOTIFY_CONFIG     optional private env file to source first (a TRUSTED shell file you own).
+#                         A leading ~ is expanded. When unset, ~/.config/owl/notify.env is read if it exists.
+#   OWL_NOTIFY_DRY_RUN=1  print what would be sent and exit 0; nothing is sent (use it for tests)
 #   telegram : TELEGRAM_BOT_TOKEN, TELEGRAM_CHAT_ID
 #   discord  : DISCORD_WEBHOOK_URL
 #   slack    : SLACK_WEBHOOK_URL
@@ -22,8 +24,10 @@
 # commit them, never write them into a dispatch or owl.md.
 #
 # Exit code 0 means the channel accepted the message; anything else is a failed send, so the
-# pre-flight test in owl:run can gate on it. Retrying and logging are owl:run's job, not this script's.
-# Requirements: curl; python3 for JSON escaping (discord/slack).
+# pre-flight test in owl:run can gate on it. For imessage, 0 only means the message was handed to
+# the Messages app; delivery to the phone is not confirmed. Retrying and logging are owl:run's job.
+# Requirements: curl; python3 for JSON escaping (discord/slack). On macOS python3 comes with the
+# command line developer tools (xcode-select --install).
 set -uo pipefail
 
 EVENT="${1:-}"; TEXT="${2:-}"; RESULT="${3:-}"
@@ -37,10 +41,16 @@ case "$EVENT" in
   *) die "unknown event: $EVENT (started|progress|attention|needs_you|completed|failed)" ;;
 esac
 
-if [ -n "${OWL_NOTIFY_CONFIG:-}" ]; then
-  [ -f "$OWL_NOTIFY_CONFIG" ] || die "OWL_NOTIFY_CONFIG not found: $OWL_NOTIFY_CONFIG"
+CONF="${OWL_NOTIFY_CONFIG:-}"
+case "$CONF" in "~/"*) CONF="$HOME/${CONF#\~/}" ;; "~") CONF="$HOME" ;; esac
+if [ -n "$CONF" ]; then
+  [ -f "$CONF" ] || die "OWL_NOTIFY_CONFIG not found: $CONF"
+elif [ -f "$HOME/.config/owl/notify.env" ]; then
+  CONF="$HOME/.config/owl/notify.env"
+fi
+if [ -n "$CONF" ]; then
   set -a; # shellcheck disable=SC1090
-  source "$OWL_NOTIFY_CONFIG"; set +a
+  source "$CONF"; set +a
 fi
 CH="${OWL_NOTIFY_CHANNEL:-}"
 [ -n "$CH" ] || die "OWL_NOTIFY_CHANNEL is not set (telegram|discord|slack|imessage)"
@@ -55,9 +65,14 @@ if [ -n "$RESULT" ]; then
   [ -n "$MEDIA" ] || MSG="${MSG} (result: ${RESULT})"
 fi
 
-json_str(){ command -v python3 >/dev/null 2>&1 || die "discord/slack need python3 for JSON escaping"
+# Runs in a command substitution, so it can only return; callers must check the status.
+json_str(){ command -v python3 >/dev/null 2>&1 || return 1
             printf '%s' "$1" | python3 -c 'import json,sys; print(json.dumps(sys.stdin.read()))'; }
 post(){ curl --fail --show-error --silent --max-time 25 "$@"; }
+
+if [ "${OWL_NOTIFY_DRY_RUN:-}" = "1" ]; then
+  echo "[owl_notify] dry run, nothing sent: channel=$CH media=${MEDIA:-none} message=$MSG"; exit 0
+fi
 
 case "$CH" in
   telegram)
@@ -73,12 +88,14 @@ case "$CH" in
     if [ -n "$MEDIA" ]; then
       post -F "content=$MSG" -F "file1=@${MEDIA}" "$DISCORD_WEBHOOK_URL" >/dev/null || die "discord send failed"
     else
-      post -H "Content-Type: application/json" -d "{\"content\":$(json_str "$MSG")}" "$DISCORD_WEBHOOK_URL" >/dev/null || die "discord send failed"
+      J="$(json_str "$MSG")" || die "discord needs python3 for JSON escaping; nothing sent"
+      post -H "Content-Type: application/json" -d "{\"content\":$J}" "$DISCORD_WEBHOOK_URL" >/dev/null || die "discord send failed"
     fi ;;
   slack)
     : "${SLACK_WEBHOOK_URL:?set SLACK_WEBHOOK_URL}"
     [ -n "$MEDIA" ] && MSG="${MSG} (image: ${MEDIA})"
-    post -H "Content-Type: application/json" -d "{\"text\":$(json_str "$MSG")}" "$SLACK_WEBHOOK_URL" >/dev/null || die "slack send failed" ;;
+    J="$(json_str "$MSG")" || die "slack needs python3 for JSON escaping; nothing sent"
+    post -H "Content-Type: application/json" -d "{\"text\":$J}" "$SLACK_WEBHOOK_URL" >/dev/null || die "slack send failed" ;;
   imessage)
     : "${IMESSAGE_TO:?set IMESSAGE_TO}"; command -v osascript >/dev/null 2>&1 || die "imessage needs macOS osascript"
     [ -n "$MEDIA" ] && MSG="${MSG} (image: ${MEDIA})"
@@ -90,4 +107,5 @@ APPLESCRIPT
     ;;
   *) die "unknown OWL_NOTIFY_CHANNEL=$CH (telegram|discord|slack|imessage)" ;;
 esac
-echo "[owl_notify] sent via $CH"
+if [ "$CH" = "imessage" ]; then echo "[owl_notify] handed to the Messages app (delivery not confirmed)"
+else echo "[owl_notify] sent via $CH"; fi
