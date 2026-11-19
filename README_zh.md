@@ -60,7 +60,7 @@ kc_ai_skills 繼續做它本來就擅長的事：一大櫃可以單獨取用的 
 
 真人問法題組是這裡的幕後功臣。每一題都是一般人實際的問法，加上預期的「行為」（「要用會議紀錄回答」「不能反問」），從來不寫標準答案。回答的字句每次都不一樣，行為不該跟著變。
 
-owl 刻意不管的事：輕量的查修，就是「服務好像卡住了，去看一下」那種。這種事不需要寫工單，硬包成工單只是在演文書作業。審查的力氣也看風險：動到正式環境的工單，最多跑三輪 [review-gate](https://github.com/KerberosClaw/kc_ai_skills/tree/main/review-gate)；其他的跑一輪。review-gate 在 kc_ai_skills，要一起裝。
+owl 刻意不管的事：輕量的查修，就是「服務好像卡住了，去看一下」那種。這種事不需要寫工單，硬包成工單只是在演文書作業。審查的力氣也看風險，但審不審、審幾輪由你決定：brief 會附建議問你，動到正式環境的工單建議最多跑三輪 [review-gate](https://github.com/KerberosClaw/kc_ai_skills/tree/main/review-gate)，其他的建議一輪或不審。review-gate 在 kc_ai_skills，要一起裝。
 
 ## 之後還會有更多 pack
 

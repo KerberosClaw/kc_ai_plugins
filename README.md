@@ -60,7 +60,7 @@ It is for handing agreed work to an agent that runs while you are not watching (
 
 The real-user question set is the quiet hero here. Each entry is a question phrased the way people actually ask it, plus the expected *behaviour* ("answers from the meeting notes", "does not ask a clarifying question"), never an expected answer. The wording of an answer changes every run; the behaviour should not.
 
-What owl leaves alone on purpose: lightweight troubleshooting, the "the service looks stuck, go have a look" kind. That needs no written dispatch, and wrapping it in one would be paperwork cosplay. Review effort scales with risk as well: anything that touches production gets up to three rounds of [review-gate](https://github.com/KerberosClaw/kc_ai_skills/tree/main/review-gate), everything else gets one. review-gate lives in kc_ai_skills, so install it alongside.
+What owl leaves alone on purpose: lightweight troubleshooting, the "the service looks stuck, go have a look" kind. That needs no written dispatch, and wrapping it in one would be paperwork cosplay. Review effort scales with risk as well, but whether to review and for how many rounds is your call: brief asks with a suggestion, up to three rounds of [review-gate](https://github.com/KerberosClaw/kc_ai_skills/tree/main/review-gate) for anything that touches production, one round or none for everything else. review-gate lives in kc_ai_skills, so install it alongside.
 
 ## More packs are coming
 

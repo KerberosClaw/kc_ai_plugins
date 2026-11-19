@@ -1,7 +1,7 @@
 ---
 name: brief
-description: "Use when agreed work is about to be handed to an unattended agent (an overnight run, a background session, another machine): reads the repo's owl.md and fills its gaps with the user one question at a time, makes every difference between the test environment and production explicit, puts a real-user question set into acceptance, writes the dispatch from the template, and sizes review-gate rounds by risk. NOT for requirements that are still undecided (use grill first), routine troubleshooting that needs no written dispatch, or running the dispatch (owl:run)."
-version: 0.1.0
+description: "Use when agreed work is about to be handed to an unattended agent (an overnight run, a background session, another machine): reads the repo's owl.md and fills its gaps with the user one question at a time, makes every difference between the test environment and production explicit, puts a real-user question set into acceptance, writes the dispatch from the template, and asks the user whether to run review-gate and for how many rounds, with a risk-based suggestion. NOT for requirements that are still undecided (use grill first), routine troubleshooting that needs no written dispatch, or running the dispatch (owl:run)."
+version: 0.2.0
 status: mvp
 triggers:
   - "/owl:brief"
@@ -14,7 +14,7 @@ triggers:
 
 # brief — 把談妥的工作寫成交得出去的工單
 
-> **English summary:** brief turns agreed work into a dispatch an unattended agent can finish without asking anyone. It reads the repo's `owl.md` first and fills missing facts with the user, one question at a time. Its core rule is test fidelity: every way the test environment differs from production is listed, closed where possible, and otherwise verified after release with a dedicated read-only production test account and a question set written the way real users ask. Review rounds scale with risk.
+> **English summary:** brief turns agreed work into a dispatch an unattended agent can finish without asking anyone. It reads the repo's `owl.md` first and fills missing facts with the user, one question at a time. Its core rule is test fidelity: every way the test environment differs from production is listed, closed where possible, and otherwise verified after release with a dedicated read-only production test account and a question set written the way real users ask. Whether to run review-gate, and for how many rounds, is the user's call; brief suggests a count based on risk.
 
 ## 什麼時候用
 
@@ -42,7 +42,7 @@ triggers:
 3. **做環境差異表**（下一節，本 skill 的核心）。
 4. **寫驗收。** 每一項都是可以執行的檢查加期望值，例如「健康檢查端點回 ok、版本是 1.4.0」，不要寫「確認環境正常」。真人問法（或真人操作）題組一定列進去。
 5. **寫授權、鎖、停止條件、通知、恢復與收尾。** 照 [工單範本](templates/dispatch.md) 逐節填，用不到的節整節刪。
-6. **送審。** 呼叫 review-gate，輪數見後面「審查輪數」。
+6. **問要不要送審。** review-gate 很耗資源，審不審、審幾輪由使用者決定，不自行判斷。附上後面「建議輪數」的建議與理由問一題；使用者要審就呼叫 review-gate，審到 READY 或指定輪數；不審就在工單寫明「未經 review-gate」。
 7. **交出。** 附上開工方式。怎麼開工、怎麼中途改指示，照 owl.md 的「執行方式」寫。
 
 ## 測試要像正式環境
@@ -86,15 +86,18 @@ triggers:
   - owl:accept 每抓到一個漏洞，就把觸發它的那題加進來。
 - 工單的驗收引用題組裡跟這次改動相關的題，不必每次全跑；但跟改動相關的題一題都不能漏。
 
-## 審查輪數
+## 建議輪數
 
-| 工單類型 | review-gate 輪數 |
+下表是問使用者時附的建議，不自動套用；審不審、審幾輪以使用者的回答為準。
+
+| 工單類型 | 建議 |
 |---|---|
-| 會動正式環境：部署、寫正式資料、改正式設定 | 最多 3 輪 |
-| 只動測試環境或私人專案、做壞了可以整個重來 | 1 輪 |
+| 會動正式環境：部署、寫正式資料、改正式設定 | 審，最多 3 輪 |
+| 只動測試環境或私人專案、做壞了可以整個重來 | 審 1 輪，或不審 |
 
-- **要不要加一輪**：看修法，不看嚴重度。複核者的處置都寫明了具體改法，就照著修完直接交，不再送一輪確認改對沒有。只有修法要另外判斷、會牽動其他段落，或修的時候發現新的 P1、P2，才加一輪。動正式環境的工單照樣以 3 輪為上限，其他工單加輪後總數也不超過 3 輪。
-- 到上限還有重要問題，就回報阻塞與選項，不靠上限宣稱通過。
+- **指定輪數內要不要用下一輪**：看修法，不看嚴重度。複核者的處置都寫明了具體改法，就照著修完直接交，不必把剩下的輪數跑完。只有修法要另外判斷、會牽動其他段落，或修的時候發現新的 P1、P2，才跑下一輪。要超過使用者指定的輪數，先問使用者。
+- 到指定輪數還有重要問題，就回報阻塞與選項，不靠上限宣稱通過。
+- 使用者不在場、問不到時不跑，工單與結果交接寫明「未經 review-gate」，等使用者決定。
 - 沒有 review-gate 或缺少獨立的審查 agent 時，如實回報能力缺口，不把自己審自己當成已審查。
 
 ## 工單一定要有的內容
