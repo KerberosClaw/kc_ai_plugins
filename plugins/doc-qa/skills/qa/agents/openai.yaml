@@ -1,4 +1,4 @@
 interface:
   display_name: "QA"
-  short_description: "Verify UI flows with Playwright or Codex computer-use"
-  default_prompt: "Use $qa to derive traceable UI tests from approved requirements, run Web flows with Playwright or desktop flows with available Codex computer-use tools, and report evidence and limitations."
+  short_description: "QA sized to the change: regression scripts first, UI only when screens change"
+  default_prompt: "Use $qa to classify the change first: skip docs-only changes, run the repo's registered regression script plus the fixed cases for backend-only changes without opening a browser, test only the changed screens and flows (Playwright for Web, available Codex computer-use for desktop) when the UI changed, and run the full requirement-mining flow only for new features or explicit full acceptance. Report the tier, the round's limits, whether it can merge, and the evidence and limitations."

@@ -2,6 +2,8 @@
 
 階段 0 選擇，階段 3 開始前再核對。測試案例與預期結果仍由需求／spec 推導，工具不改變測試意圖。
 
+本檔只管畫面級與完整級。回歸級與免測級依分級不開 UI，不必選 driver；那是分級的結果，不是本檔講的 `UI QA 不適用`。
+
 ## 選擇操作方式
 
 **看受測產品的介面，不看 agent 是否在背景執行。** Claude Code bg session／agents、headless session 或無人值守 agent 測 Web 時，仍使用 Playwright MCP；「背景執行」不構成 UI QA 不適用的理由。
